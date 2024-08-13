@@ -36,9 +36,13 @@ class Shooter(pygame.sprite.Sprite):
             self.angle -= 5
 
         if self.moving_forward:
+            if self.high_speed:
+                constant = 1
+            else:
+                constant = 4
             rad_angle = math.radians(-self.angle)
-            self.rect.x += int(self.speed * math.cos(rad_angle))
-            self.rect.y += int(self.speed * math.sin(rad_angle))
+            self.rect.x += int(constant*self.speed * math.cos(rad_angle))
+            self.rect.y += int(constant*self.speed * math.sin(rad_angle))
 
     def move_forward(self):
         self.moving_forward = True
