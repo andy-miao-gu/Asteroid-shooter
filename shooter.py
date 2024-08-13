@@ -6,7 +6,9 @@ class Shooter(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image_original = pygame.image.load('Stop moving or slow speed_croped.png')
+        self.image_original = pygame.image.load('High speed_cropped.png')
+        #rotate iamge to left
+
         self.image = self.image_original
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
