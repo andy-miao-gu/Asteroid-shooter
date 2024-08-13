@@ -39,7 +39,7 @@ class Shooter(pygame.sprite.Sprite):
             if self.high_speed:
                 constant = 1
             else:
-                constant = 4
+                constant = 3
             rad_angle = math.radians(-self.angle)
             self.rect.x += int(constant*self.speed * math.cos(rad_angle))
             self.rect.y += int(constant*self.speed * math.sin(rad_angle))
@@ -85,7 +85,9 @@ if __name__ == '__main__':
                 if event.key == pygame.K_UP:
                     shooter.move_forward()
                 if event.key == pygame.K_SPACE:
-                    shooter.high_speed = True
+                    shooter.high_speed = True 
+                if event.key == pygame.K_KP_ENTER:
+                    
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     shooter.stop_turning_left()
