@@ -97,5 +97,4 @@ if __name__ == '__main__':
         screen.blit(shooter.image, shooter.rect)
         pygame.display.flip()
         clock.tick(30)
-
     pygame.quit()
