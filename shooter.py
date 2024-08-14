@@ -18,12 +18,15 @@ class Shooter(pygame.sprite.Sprite):
         self.moving_forward = False
         self.turning_left = False
         self.turning_right = False
+        self.imag_category = 1
 
     def update(self):
-        if self.high_speed:
-            self.image_original = pygame.image.load('High speed_cropped.png')
-        else:
+        if self.imag_category == 1:
             self.image_original = pygame.image.load('Stop moving or slow speed_croped.png')
+        elif self.imag_category == 2:
+            self.image_original = pygame.image.load('High speed_cropped.png')
+        elif self.imag_category == 3:
+            self.image_original = pygame.image.load('Drill.png')
         
         # Rotate the image based on the current angle
         self.image = pygame.transform.rotate(self.image_original, self.angle)
@@ -40,8 +43,7 @@ class Shooter(pygame.sprite.Sprite):
                 constant = 3
             else:
                 constant = 1
-            else:
-                constant = 4
+            
             rad_angle = math.radians(-self.angle)
             self.rect.x += int(constant*self.speed * math.cos(rad_angle))
             self.rect.y += int(constant*self.speed * math.sin(rad_angle))
@@ -88,7 +90,9 @@ if __name__ == '__main__':
                     shooter.move_forward()
                 if event.key == pygame.K_SPACE:
                     shooter.high_speed = True 
-                if event.key == pygame.K_KP_ENTER:
+                    shooter.imag_category =2
+                if event.key == pygame.K_d:
+                    shooter.imag_category = 3
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -99,6 +103,10 @@ if __name__ == '__main__':
                     shooter.stop_moving()
                 if event.key == pygame.K_SPACE:
                     shooter.high_speed = False
+                    shooter.imag_category = 1
+                if event.key == pygame.K_d:
+                    shooter.imag_category = 1
+                    
 
         screen.fill((0, 0, 255))
         shooter.update()
