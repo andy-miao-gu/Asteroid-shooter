@@ -7,8 +7,6 @@ class Shooter(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image_original = pygame.image.load('High speed_cropped.png')
-        #rotate iamge to left
-
         self.image = self.image_original
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -39,11 +37,7 @@ class Shooter(pygame.sprite.Sprite):
             self.angle -= 5
 
         if self.moving_forward:
-            if self.high_speed:
-                constant = 3
-            else:
-                constant = 1
-            
+            constant = 3 if self.high_speed else 1
             rad_angle = math.radians(-self.angle)
             self.rect.x += int(constant*self.speed * math.cos(rad_angle))
             self.rect.y += int(constant*self.speed * math.sin(rad_angle))
@@ -66,6 +60,28 @@ class Shooter(pygame.sprite.Sprite):
     def stop_turning_right(self):
         self.turning_right = False
 
+    
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y, angle):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('bullet.png')
+        # Rotate the bullet image so it's facing the right direction
+        self.image = pygame.transform.rotate(self.image, angle)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.angle = angle
+        self.speed = 50
+
+    def update(self):
+        rad_angle = math.radians(-self.angle)
+        self.rect.x += int(self.speed * math.cos(rad_angle))
+        self.rect.y += int(self.speed * math.sin(rad_angle))
+
+        # Remove the bullet if it moves off the screen
+        if (self.rect.x < 0 or self.rect.x > 800 or
+            self.rect.y < 0 or self.rect.y > 600):
+            self.kill()
+
 
 if __name__ == '__main__':
     pygame.init()
@@ -75,6 +91,10 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
 
     shooter = Shooter(400, 300)
+    all_sprites = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
+    all_sprites.add(shooter)
+
     running = True
     while running:
         for event in pygame.event.get():
@@ -90,9 +110,14 @@ if __name__ == '__main__':
                     shooter.move_forward()
                 if event.key == pygame.K_SPACE:
                     shooter.high_speed = True 
-                    shooter.imag_category =2
+                    shooter.imag_category = 2
                 if event.key == pygame.K_d:
                     shooter.imag_category = 3
+                if event.key == pygame.K_f:
+                    # Fire a bullet
+                    bullet = Bullet(shooter.rect.centerx, shooter.rect.centery, shooter.angle)
+                    all_sprites.add(bullet)
+                    bullets.add(bullet)
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -106,11 +131,14 @@ if __name__ == '__main__':
                     shooter.imag_category = 1
                 if event.key == pygame.K_d:
                     shooter.imag_category = 1
-                    
+                
+        # Update all sprites
+        all_sprites.update()
 
+        # Draw everything
         screen.fill((0, 0, 255))
-        shooter.update()
-        screen.blit(shooter.image, shooter.rect)
+        all_sprites.draw(screen)
         pygame.display.flip()
         clock.tick(30)
+    
     pygame.quit()
