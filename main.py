@@ -6,7 +6,8 @@ from bullet import Bullet
 
 if __name__ == '__main__':
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
+    x_screen, y_screen = 1450, 800
+    screen = pygame.display.set_mode((x_screen, y_screen))
     pygame.display.set_caption('Shooter')
 
     clock = pygame.time.Clock()
@@ -36,7 +37,7 @@ if __name__ == '__main__':
                     shooter.imag_category = 3
                 if event.key == pygame.K_f:
                     # Fire a bullet
-                    bullet = Bullet(shooter.rect.centerx, shooter.rect.centery, shooter.angle)
+                    bullet = Bullet(shooter.rect.centerx, shooter.rect.centery, shooter.angle,x_screen, y_screen)
                     all_sprites.add(bullet)
                     bullets.add(bullet)
                     

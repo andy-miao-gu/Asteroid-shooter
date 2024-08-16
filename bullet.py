@@ -3,7 +3,7 @@ import math
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, angle):
+    def __init__(self, x, y, angle,x_screen, y_screen):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('bullet.png')
         # Rotate the bullet image so it's facing the right direction
@@ -12,6 +12,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.angle = angle
         self.speed = 50
+        self.x_screen = x_screen
+        self.y_screen = y_screen
 
     def update(self):
         rad_angle = math.radians(-self.angle)
@@ -19,8 +21,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y += int(self.speed * math.sin(rad_angle))
 
         # Remove the bullet if it moves off the screen
-        if (self.rect.x < 0 or self.rect.x > 800 or
-            self.rect.y < 0 or self.rect.y > 600):
+        if (self.rect.x < 0 or self.rect.x > self.x_screen or
+            self.rect.y < 0 or self.rect.y > self.y_screen):
             self.kill()
 
 
