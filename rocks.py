@@ -1,103 +1,98 @@
-# move a rock randomly in space path is rocks_folder/1.png 
-
 import pygame
 import random
-import os
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Set up the display
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Breaking Rock')
+
+# Load rock images
+rock_image_large = pygame.image.load('rocks_folder/1.png')  # Large rock
+rock_image_small = pygame.image.load('rocks_folder/2.png')  # Small rocks after breaking
 
 class myRock(pygame.sprite.Sprite):
-    def __init__(self, screen):
-        pygame.sprite.Sprite.__init__(self)
-        self.screen = screen
-        self.image = pygame.image.load(os.path.join("rocks_folder", "1.png"))
-        self.rect = self.image.get_rect()
-        self.rect.centerx = random.randint(0, self.screen.get_width())
-        self.rect.centery = random.randint(0, self.screen.get_height())
-        self.speed = random.randint(1, 3)
-        self.angle = random.randint(0, 360)
-        self.angle_speed = random.randint(0, 10)
+    def __init__(self, image, x, y, is_large=True):
+        super().__init__()
+        self.is_large = is_large
+        self.image = image
+        self.rect = self.image.get_rect(center=(x, y))
+
+        # If the rock is large, give it slow speed; smaller rocks move faster
+        self.speed_x = random.randint(-3, 3) if self.is_large else random.randint(-5, 5)
+        self.speed_y = random.randint(-3, 3) if self.is_large else random.randint(-5, 5)
 
     def update(self):
-        self.rect.centerx += self.speed * (self.angle % 360)
-        self.rect.centery += self.speed * (self.angle % 360)
-        self.angle += self.angle_speed
-        if self.rect.left > self.screen.get_width():
-            self.rect.right = 0
-        if self.rect.right < 0:
-            self.rect.left = self.screen.get_width()
-        if self.rect.top > self.screen.get_height():
-            self.rect.bottom = 0
-        if self.rect.bottom < 0:
-            self.rect.top = self.screen.get_height()
+        # Move the rock
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
 
-    def draw(self):
-        self.screen.blit(self.image, self.rect)
+        # If the rock goes out of bounds, reset it
+        if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH or self.rect.bottom < 0 or self.rect.top > SCREEN_HEIGHT:
+            self.reset_position()
 
-    def get_rect(self):
-        return self.rect
+    def reset_position(self):
+        # Regenerate a new rock at a random position within bounds
+        if self.is_large:
+            self.image = rock_image_large
+        else:
+            self.image = rock_image_small
+        self.rect = self.image.get_rect(
+            center=(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT))
+        )
+        self.speed_x = random.randint(-3, 3) if self.is_large else random.randint(-5, 5)
+        self.speed_y = random.randint(-3, 3) if self.is_large else random.randint(-5, 5)
 
-    def get_image(self):
-        return self.image
+    def break_rock(self):
+        # Break the large rock into two smaller rocks
+        if self.is_large:
+            rock1 = myRock(rock_image_small, self.rect.centerx, self.rect.centery, is_large=False)
+            rock2 = myRock(rock_image_small, self.rect.centerx, self.rect.centery, is_large=False)
+            return [rock1, rock2]
+        return []
 
-    def get_speed(self):
-        return self.speed
-
-    def get_angle(self):
-        return self.angle
-
-    def get_angle_speed(self):
-        return self.angle_speed
-
-    def set_speed(self, speed):
-        self.speed = speed
-
-    def set_angle(self, angle):
-        self.angle = angle
-
-    def set_angle_speed(self, angle_speed):
-        self.angle_speed = angle_speed
-
-    def set_position(self, x, y):
-        self.rect.centerx = x
-        self.rect.centery = y
-
-    def set_image(self, image):
-        self.image = image
-
-    def set_rect(self, rect):
-        self.rect = rect
-
-    def set_angle(self, angle):
-        self.angle = angle
-
-    def set_angle_speed(self, angle_speed):
-        self.angle_speed = angle_speed
-
-    def set_speed(self, speed):
-        self.speed = speed
-
-    def set_position(self, x, y):
-        self.rect.centerx = x
-        self.rect.centery = y
-
-    def set_image(self, image):
-        self.image = image
-
-
-if __name__ == "__main__":
-    screen = pygame.display.set_mode((800, 600))
-    pygame.display.set_caption("Rocks")
-    background = pygame.Surface(screen.get_size())
-    background.fill((0, 0, 0))
-    screen.blit(background, (0, 0))
-    rock = myRock(screen)
+def main():
     clock = pygame.time.Clock()
+
+    # Sprite group to manage all rocks
+    all_rocks = pygame.sprite.Group()
+
+    # Create the initial large rock and add it to the group
+    initial_rock = myRock(rock_image_large, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    all_rocks.add(initial_rock)
+
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        rock.update()
-        rock.draw()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                # Break the rock when space is pressed
+                for rock in all_rocks:
+                    if rock.is_large:  # Only break large rocks
+                        new_rocks = rock.break_rock()
+                        all_rocks.add(new_rocks)
+                        rock.kill()  # Remove the original large rock
+
+        # Clear the screen
+        screen.fill((0, 0, 0))
+
+        # Update and draw all rocks
+        all_rocks.update()
+        all_rocks.draw(screen)
+
+        # Update the display
         pygame.display.flip()
+
+        # Control the frame rate
         clock.tick(60)
+
     pygame.quit()
+
+if __name__ == "__main__":
+    main()
